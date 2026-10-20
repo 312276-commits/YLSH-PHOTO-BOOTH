@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ICE BLUE 拍貼所</title>
+<style>
+:root{--ice:#dff5fb;--blue:#8ed5e8;--deep:#286b80;--ink:#203d49;--white:#fff;--line:#c8e9f1}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(145deg,#f8fdff,#e2f7fc);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;min-height:100vh}
+button,input{font:inherit}button{border:0;cursor:pointer}
+.app{max-width:760px;margin:auto;min-height:100vh;padding:20px 18px 36px;display:flex;flex-direction:column}
+.top{display:flex;justify-content:space-between;align-items:center;padding:18px 2px 22px}
+.brand{font-size:14px;letter-spacing:.22em;font-weight:800;color:var(--deep)}
+.step{font-size:12px;color:#6796a4}
+.page{display:none;flex:1;animation:fade .22s ease}.page.active{display:flex;flex-direction:column}
+@keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{margin:auto 0;text-align:center;padding:25px 0}
+.eyebrow{font-size:11px;letter-spacing:.25em;color:#6399a8;font-weight:700}
+.hero h1{font-size:clamp(35px,8vw,58px);letter-spacing:.04em;margin:16px 0 12px;line-height:1.2}
+.hero p,.muted{color:#70909b;line-height:1.8;font-size:14px}
+.pill{display:inline-block;border:1px solid var(--line);background:#ffffffa8;padding:8px 13px;border-radius:99px;font-size:12px;color:#5a8795;margin:4px}
+.primary,.secondary{border-radius:999px;padding:15px 22px;font-weight:700;transition:.15s}
+.primary{background:var(--deep);color:white;box-shadow:0 7px 18px #286b8024}
+.primary:active,.secondary:active{transform:scale(.98)}
+.secondary{background:white;color:var(--deep);border:1px solid var(--line)}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+.section-title{font-size:25px;margin:10px 0 6px}
+.sub{font-size:13px;color:#7294a0;margin:0 0 20px;line-height:1.7}
+.card{background:#ffffffc9;border:1px solid var(--line);border-radius:24px;padding:17px;box-shadow:0 10px 30px #4c9fb00d}
+.frame-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.frame-option{padding:12px;background:#fff;border:2px solid transparent;border-radius:18px;text-align:center;color:var(--ink);min-width:0}
+.frame-option.selected{border-color:#4eafc8;background:#f0fbfe}
+.frame-art{width:100%;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#eaf8fc;display:grid;grid-template-rows:1fr 1fr;gap:5px;padding:8px;position:relative;border:1px solid #cbeaf2}
+.frame-art:after{content:attr(data-label);position:absolute;bottom:5px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.12em;color:#39768a;pointer-events:none}
+.fake-shot{background:linear-gradient(135deg,#b9e6f2,#effbfe);border:1px solid #fff;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#6ca7b6;font-size:18px}
+.frame-name{font-size:13px;font-weight:700;margin-top:9px;overflow-wrap:anywhere}
+.frame-option input{display:none}
+.upload-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}
+.upload-label{display:inline-flex;align-items:center;justify-content:center;padding:12px 15px;border-radius:999px;background:white;border:1px dashed #82c8d9;color:#3f8193;font-size:13px;cursor:pointer}
+.upload-label input{display:none}
+.camera-box{background:#15333e;border-radius:22px;overflow:hidden;position:relative;min-height:230px;display:flex;align-items:center;justify-content:center;color:#d9f4fb}
+.camera-box video{width:100%;max-height:48vh;object-fit:cover;display:none}
+.countdown{font-size:72px;font-weight:800;letter-spacing:.04em}
+.shot-list{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:13px 0}
+.shot{aspect-ratio:3/4;background:#f0fbfd;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#83aab5;font-size:12px}
+.shot img{width:100%;height:100%;object-fit:cover}
+.progress{height:5px;background:#e0f2f7;border-radius:9px;overflow:hidden;margin-top:12px}
+.progress span{display:block;height:100%;background:#5db9d0;width:0;transition:width .2s}
+.preview-wrap{display:flex;justify-content:center}
+.print-canvas{width:min(100%,360px);height:auto;border-radius:7px;box-shadow:0 12px 30px #22586b20;background:white}
+.qr{width:190px;height:190px;object-fit:contain;border:12px solid white;border-radius:14px;box-shadow:0 8px 28px #286b8015}
+.center{text-align:center}
+.notice{font-size:12px;line-height:1.7;color:#6f919c;background:#f0fbfd;border-radius:14px;padding:12px;margin-top:13px}
+.footer{padding-top:20px;text-align:center;color:#8eafb8;font-size:10px;letter-spacing:.12em}
+.hidden{display:none!important}#printArea{display:none}
+@media(min-width:600px){.frame-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media print{body{background:white}.app{display:none!important}#printArea{display:block!important;margin:0;padding:0;text-align:center}#printCanvas{width:4in;height:6in;object-fit:fill;display:block;margin:0 auto}@page{size:4in 6in;margin:0}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">YLSH PHOTO BOOTH</div><div class="step" id="stepLabel">按下按鈕開始拍貼</div></header>
+
+<section class="page active" id="p1">
+  <div class="hero">
+    <div class="eyebrow"></div>
+    <h1>𝟐𝟒𝐭𝐡 𝐆𝐒𝐀</h1>
+    <p>˙✧˖°📷 ༘ ⋆｡˚</p>
+    <div style="margin:22px 0"><span class="pill">4 CUTS</span><span class="pill">4 × 6 IN</span></div>
+    <button class="primary" onclick="go(2)">Start　→</button>
+  </div>
+</section>
+
+<section class="page" id="p2">
+  <h2 class="section-title">選擇你的拍貼框</h2>
+  <p class="sub">選一款喜歡的設計，也可以上傳你在 Canva 製作的透明 PNG。</p>
+  <div class="frame-grid" id="frameGrid"></div>
+  <div class="upload-line"><label class="upload-label">＋ 上傳自製 PNG 框<input id="frameUpload" type="file" accept="image/png,image/*" multiple></label><span class="muted" id="frameStatus">尚未上傳自製框</span></div>
+  <div class="actions"><button class="secondary" onclick="go(1)">返回</button><button class="primary" onclick="go(3)">選好了，去拍照 →</button></div>
+  <div class="notice">小提醒：PNG 框的照片位置必須是透明的，合成時才會露出照片。建議框檔和成品使用相同長寬比例。</div>
+</section>
+
+<section class="page" id="p3">
+  <h2 class="section-title">準備好你的表情了嗎？</h2>
+  <p class="sub">每張照片倒數 10 秒，共拍四張。可用 iPad 相機試拍；若要使用 Sony a5100，請先用 Imaging Edge Mobile 拍攝，再把照片匯入本頁。</p>
+  <div class="camera-box"><video id="video" autoplay playsinline></video><div id="cameraMessage" class="center"><div style="font-size:34px;margin-bottom:8px">✦</div><div>準備好就開始吧</div><div style="font-size:12px;opacity:.7;margin-top:8px">可開啟 iPad 相機，或稍後匯入照片</div></div><div id="countdown" class="countdown hidden">10</div></div>
+  <div class="shot-list" id="shotList"></div><div class="progress"><span id="progressBar"></span></div>
+  <div class="actions"><button class="secondary" onclick="stopCamera();go(2)">返回選框</button><button class="secondary" id="cameraBtn" onclick="startCamera()">開啟 iPad 相機</button><button class="primary" id="shootBtn" onclick="startShoot()">開始倒數拍攝</button></div>
+  <div class="upload-line"><label class="upload-label">匯入四張照片<input id="photosUpload" type="file" accept="image/*" multiple></label><button class="secondary" onclick="clearShots()">清除重拍</button></div>
+  <div class="notice">相機限制：一般網頁不能直接操作 Sony a5100 的 Imaging Edge Mobile App。若使用 Sony，請在相機 App 拍好四張後匯入；本頁的倒數拍攝使用 iPad 瀏覽器相機。</div>
+</section>
+
+<section class="page" id="p4">
+  <h2 class="section-title">你的拍貼完成了！</h2><p class="sub">確認四張照片和拍貼框的位置，再保存或繼續。</p>
+  <div class="preview-wrap"><canvas id="composite" class="print-canvas" width="1200" height="1800"></canvas></div>
+  <div class="actions"><button class="secondary" onclick="go(3)">回去重拍</button><button class="primary" onclick="saveComposite()">保存成品 PNG</button><button class="primary" onclick="go(5)">下一步：電子檔 →</button></div>
+  <div class="notice">目前會將四張照片平均排入底圖，再疊上拍貼框。若透明窗口位置不同，還需要依照你的 Canva 設計調整照片位置。</div>
+</section>
+
+<section class="page" id="p5">
+  <h2 class="section-title">把回憶帶回家</h2><p class="sub">生成成品後，可保存圖片。若要讓其他手機掃描 QR Code，圖片需要先放到可公開存取的網址。</p>
+  <div class="card center"><img id="qrImg" class="qr" alt="成品網址 QR Code" src=""><p id="qrMessage" class="muted">請先輸入成品圖片的公開網址，才能產生可掃描的 QR Code。</p><input id="publicUrl" type="url" placeholder="https://你的圖片網址..." style="width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;background:white;margin-top:8px"><div class="actions"><button class="secondary" onclick="makeQR()">產生 QR Code</button><button class="primary" onclick="saveComposite()">先保存成品 PNG</button></div></div>
+  <div class="notice">這個純 HTML 檔不能自動把圖片上傳到網路，因此無法只靠本機檔案產生別人也能掃描下載的電子檔連結。QR Code 需要公開圖片網址；不要放入私人照片的敏感內容。</div>
+  <div class="actions"><button class="secondary" onclick="go(4)">返回預覽</button><button class="primary" onclick="go(6)">下一步：列印 →</button></div>
+</section>
+
+<section class="page" id="p6">
+  <h2 class="section-title">列印你的四格回憶</h2><p class="sub">請確認印表機已連接 iPad，紙張尺寸選 4 × 6 吋（10 × 15 cm）。</p>
+  <div class="preview-wrap"><canvas id="printPreview" class="print-canvas" width="1200" height="1800"></canvas></div>
+  <div class="card" style="margin-top:16px"><div style="font-weight:700">列印設定小提醒</div><p class="muted">紙張：4 × 6 吋／10 × 15 cm<br>縮放：符合紙張或 100%（依印表機選項）<br>邊界：無／最小（依印表機支援）</p></div>
+  <div class="actions"><button class="secondary" onclick="go(5)">返回電子檔</button><button class="primary" onclick="printPhoto()">列印 4×6 成品</button><button class="secondary" onclick="location.reload()">回到主畫面</button></div>
+  <div class="notice">列印會開啟系統列印視窗；HP OfficeJet 2621 是否能從 iPad 直接列印，取決於 iPadOS、印表機連線與可用的列印服務。</div>
+</section>
+<div class="footer">ICE BLUE PHOTO BOOTH · MADE WITH LOVE</div>
+</div>
+<div id="printArea"><canvas id="printCanvas" width="1200" height="1800"></canvas></div>
+
+<script>
+let current=1,frameImg=null,frameName='冰川藍',shots=[null,null,null,null],stream=null,shooting=false,customFrames=[];
+const palettes=[];
+
+function go(n){
+  if(shooting)return;
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('p'+n).classList.add('active');
+  current=n;
+  document.getElementById('stepLabel').textContent=['','WELCOME / 01','CHOOSE FRAME / 02','TAKE PHOTOS / 03','PREVIEW / 04','DIGITAL FILE / 05','PRINT / 06'][n];
+  if(n===4||n===6)renderComposite();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function makeFrames(){
+  // 不顯示預設示範框；使用者只會看到自己上傳的 PNG 框。
+  const grid=document.getElementById('frameGrid');
+  grid.innerHTML='';
+}
+makeFrames();
+
+function drawPlaceholder(ctx,x,y,w,h,i){
+  const g=ctx.createLinearGradient(x,y,x+w,y+h);g.addColorStop(0,'#d8f1f7');g.addColorStop(1,'#f5fcfe');
+  ctx.fillStyle=g;ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ffffff';ctx.lineWidth=8;ctx.strokeRect(x+4,y+4,w-8,h-8);
+  ctx.fillStyle='#6ca7b6';ctx.font='42px sans-serif';ctx.textAlign='center';ctx.fillText(shots[i]?'':'✦',x+w/2,y+h/2);
+}
+function paintShots(ctx,W,H){
+  const margin=W*.07,gap=W*.025,top=H*.07,bottom=H*.12,cellW=W-margin*2,cellH=(H-top-bottom-gap*3)/4;
+  for(let i=0;i<4;i++){
+    const x=margin,y=top+i*(cellH+gap);
+    if(shots[i]){
+      const im=shots[i],scale=Math.max(cellW/im.width,cellH/im.height),sw=cellW/scale,sh=cellH/scale,sx=(im.width-sw)/2,sy=(im.height-sh)/2;
+      ctx.save();ctx.beginPath();ctx.rect(x,y,cellW,cellH);ctx.clip();ctx.drawImage(im,sx,sy,sw,sh,x,y,cellW,cellH);ctx.restore();
+    }else drawPlaceholder(ctx,x,y,cellW,cellH,i);
+  }
+}
+function renderComposite(){
+  const c=document.getElementById('composite'),ctx=c.getContext('2d');
+  ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#e6f7fb';ctx.fillRect(0,0,c.width,c.height);
+  paintShots(ctx,c.width,c.height);
+  if(frameImg)ctx.drawImage(frameImg,0,0,c.width,c.height);
+  else{
+    ctx.fillStyle='#286b80';ctx.textAlign='center';ctx.font='bold 34px sans-serif';ctx.fillText(frameName.toUpperCase(),c.width/2,c.height-65);
+    ctx.font='20px sans-serif';ctx.fillText('A LITTLE MEMORY',c.width/2,c.height-30);
+  }
+  const p=document.getElementById('printPreview').getContext('2d');p.clearRect(0,0,1200,1800);p.drawImage(c,0,0);
+  const pc=document.getElementById('printCanvas').getContext('2d');pc.clearRect(0,0,1200,1800);pc.drawImage(c,0,0);
+}
+function loadImage(file){
+  return new Promise((resolve,reject)=>{
+    const u=URL.createObjectURL(file),im=new Image();
+    im.onload=()=>{URL.revokeObjectURL(u);resolve(im)};
+    im.onerror=()=>{URL.revokeObjectURL(u);reject(new Error('圖片讀取失敗'))};
+    im.src=u;
+  });
+}
+document.getElementById('frameUpload').addEventListener('change',async e=>{
+  const files=[...e.target.files].filter(f=>f.type==='image/png'||/\.png$/i.test(f.name));
+  if(!files.length){alert('請選擇 PNG 拍貼框檔案。');e.target.value='';return;}
+  try{
+    const grid=document.getElementById('frameGrid');
+    for(const f of files){
+      const img=await loadImage(f),name=f.name.replace(/\.png$/i,'')||'我的自製框';
+      const item={img,name};
+      customFrames.push(item);
+      const card=document.createElement('button');card.type='button';card.className='frame-option custom-frame-option';
+      const art=document.createElement('div');art.className='frame-art';art.style.display='flex';art.style.alignItems='center';art.style.justifyContent='center';art.style.padding='8px';
+      const preview=document.createElement('img');preview.src=img.src;preview.alt=name+'預覽';preview.style.cssText='width:100%;height:100%;object-fit:contain;display:block;';
+      art.appendChild(preview);
+      const label=document.createElement('div');label.className='frame-name';label.textContent=name;
+      card.append(art,label);
+      card.onclick=()=>{
+        document.querySelectorAll('.frame-option').forEach(x=>x.classList.remove('selected'));
+        card.classList.add('selected');frameImg=item.img;frameName=item.name;
+        document.getElementById('frameStatus').textContent='已選擇：'+frameName;
+        renderComposite();
+      };
+      grid.prepend(card);
+    }
+    const first=grid.querySelector('.custom-frame-option');
+    if(first){
+      document.querySelectorAll('.frame-option').forEach(x=>x.classList.remove('selected'));
+      first.classList.add('selected');
+      frameImg=customFrames[customFrames.length-files.length].img;
+      frameName=customFrames[customFrames.length-files.length].name;
+    }
+    document.getElementById('frameStatus').textContent='已新增自製框，可點選想使用的框';
+    renderComposite();
+    alert('自製拍貼框已上傳！現在可以點選不同框來切換。');
+  }catch(err){console.error(err);alert('圖片讀取失敗，請確認檔案是有效的 PNG。');}
+  e.target.value='';
+});
+
+function updateShots(){
+  const root=document.getElementById('shotList');root.innerHTML='';
+  shots.forEach((s,i)=>{const d=document.createElement('div');d.className='shot';if(s){const im=document.createElement('img');im.src=s.src;d.appendChild(im)}else d.textContent='第 '+(i+1)+' 張';root.appendChild(d)});
+  document.getElementById('progressBar').style.width=(shots.filter(Boolean).length/4*100)+'%';
+}
+updateShots();
+document.getElementById('photosUpload').addEventListener('change',async e=>{
+  const fs=[...e.target.files].slice(0,4);
+  for(let i=0;i<fs.length;i++){try{shots[i]=await loadImage(fs[i])}catch(err){console.error(err)}}
+  updateShots();if(shots.every(Boolean))go(4);
+});
+async function startCamera(){
+  try{
+    if(!navigator.mediaDevices?.getUserMedia)throw new Error('此頁面無法存取相機。請使用 HTTPS 網址或支援的瀏覽器環境。');
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false});
+    const v=document.getElementById('video');v.srcObject=stream;v.style.display='block';
+    document.getElementById('cameraMessage').classList.add('hidden');document.getElementById('cameraBtn').textContent='相機已開啟';
+  }catch(e){alert('無法開啟 iPad 相機：'+e.message+'\n若目前是直接開啟本機 HTML 檔，請先將網站放到 HTTPS 網址。');}
+}
+function stopCamera(){
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  const v=document.getElementById('video');v.srcObject=null;v.style.display='none';document.getElementById('cameraMessage').classList.remove('hidden');
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function startShoot(){
+  if(shooting)return;const v=document.getElementById('video');
+  if(!stream){alert('請先按「開啟 iPad 相機」，或使用「匯入四張照片」。');return;}
+  shooting=true;document.getElementById('shootBtn').disabled=true;document.getElementById('countdown').classList.remove('hidden');
+  try{
+    for(let i=0;i<4;i++){
+      for(let t=10;t>0;t--){document.getElementById('countdown').textContent=t;await wait(1000);}
+      const c=document.createElement('canvas');c.width=v.videoWidth||1280;c.height=v.videoHeight||720;c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+      const im=new Image();im.src=c.toDataURL('image/jpeg',.92);await new Promise((resolve,reject)=>{im.onload=resolve;im.onerror=reject;});shots[i]=im;updateShots();
+      document.getElementById('countdown').textContent=i<3?'下一張準備中…':'完成！';if(i<3)await wait(900);
+    }
+    go(4);
+  }catch(err){alert('拍攝過程發生問題，請再試一次。');}
+  finally{document.getElementById('countdown').classList.add('hidden');document.getElementById('shootBtn').disabled=false;shooting=false;stopCamera();}
+}
+function clearShots(){shots=[null,null,null,null];updateShots();}
+function saveComposite(){
+  renderComposite();const a=document.createElement('a');a.download='ice-blue-photobooth.png';a.href=document.getElementById('composite').toDataURL('image/png');a.click();
+}
+function makeQR(){
+  const u=document.getElementById('publicUrl').value.trim();
+  if(!/^https?:\/\//i.test(u)){alert('請先貼上以 https:// 或 http:// 開頭的公開圖片網址。');return;}
+  document.getElementById('qrImg').src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data='+encodeURIComponent(u);
+  document.getElementById('qrMessage').textContent='QR Code 已依照你輸入的網址產生。請用另一支手機測試掃描。';
+}
+function printPhoto(){renderComposite();window.print();}
+</script>
+</body>
+</html>
