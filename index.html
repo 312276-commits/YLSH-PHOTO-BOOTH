@@ -142,17 +142,50 @@ function drawPlaceholder(ctx,x,y,w,h,i){
   ctx.fillStyle=g;ctx.fillRect(x,y,w,h);ctx.strokeStyle='#ffffff';ctx.lineWidth=8;ctx.strokeRect(x+4,y+4,w-8,h-8);
   ctx.fillStyle='#6ca7b6';ctx.font='42px sans-serif';ctx.textAlign='center';ctx.fillText(shots[i]?'':'✦',x+w/2,y+h/2);
 }
-function paintShots(ctx,W,H){
-  const margin=W*.07,gap=W*.025,top=H*.07,bottom=H*.12,cellW=W-margin*2,cellH=(H-top-bottom-gap*3)/4;
-  for(let i=0;i<4;i++){
-    const x=margin,y=top+i*(cellH+gap);
-    if(shots[i]){
-      const im=shots[i],scale=Math.max(cellW/im.width,cellH/im.height),sw=cellW/scale,sh=cellH/scale,sx=(im.width-sw)/2,sy=(im.height-sh)/2;
-      ctx.save();ctx.beginPath();ctx.rect(x,y,cellW,cellH);ctx.clip();ctx.drawImage(im,sx,sy,sw,sh,x,y,cellW,cellH);ctx.restore();
-    }else drawPlaceholder(ctx,x,y,cellW,cellH,i);
+
+function paintShots(ctx, W, H) {
+  const margin = W * 0.07;
+  const gap = W * 0.025;
+  const top = H * 0.07;
+  const bottom = H * 0.12;
+
+  const cellW = (W - margin * 2 - gap) / 2;
+  const cellH = (H - top - bottom - gap) / 2;
+
+  for (let i = 0; i < 4; i++) {
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = margin + col * (cellW + gap);
+    const y = top + row * (cellH + gap);
+
+    if (shots[i]) {
+      const im = shots[i];
+      const scale = Math.max(
+        cellW / im.width,
+        cellH / im.height
+      );
+
+      const sw = cellW / scale;
+      const sh = cellH / scale;
+      const sx = (im.width - sw) / 2;
+      const sy = (im.height - sh) / 2;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y, cellW, cellH);
+      ctx.clip();
+      ctx.drawImage(
+        im,
+        sx, sy, sw, sh,
+        x, y, cellW, cellH
+      );
+      ctx.restore();
+    } else {
+      drawPlaceholder(ctx, x, y, cellW, cellH, i);
+    }
   }
 }
-function renderComposite(){
+
   const c=document.getElementById('composite'),ctx=c.getContext('2d');
   ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle='#e6f7fb';ctx.fillRect(0,0,c.width,c.height);
   paintShots(ctx,c.width,c.height);
